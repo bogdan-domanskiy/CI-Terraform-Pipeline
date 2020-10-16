@@ -35,19 +35,19 @@ jobs:
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
-      run: sudo terraform init  -var="principal_name=${{ secrets.PRINCIPAL_NAME }}" -var="sa_key=${{ secrets.ACCESS_KEY_BACK }}"
+      run: ls -la && terraform init  -var="principal_name=${{ secrets.PRINCIPAL_NAME }}" -var="sa_key=${{ secrets.ACCESS_KEY_BACK }}" ./GitHub-CI/
 
 
     # Checks that all Terraform configuration files adhere to a canonical format
     - name: Terraform Format
-      run:  terraform fmt -check
+      run:  terraform fmt -check ./GitHub-CI/
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan
-      run: terraform plan -var="principal_name=${{ secrets.PRINCIPAL_NAME }}" -var="sa_key=${{ secrets.ACCESS_KEY_BACK }}"
+      run: terraform plan -var="principal_name=${{ secrets.PRINCIPAL_NAME }}" -var="sa_key=${{ secrets.ACCESS_KEY_BACK }}" ./GitHub-CI/
 
       # On push to develop, build or change infrastructure according to Terraform configuration files
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
     - name: Terraform Apply
       if: github.ref == 'refs/heads/develop' && github.event_name != 'pull_request'
-      run: terraform apply -var="principal_name=${{ secrets.PRINCIPAL_NAME }}" -var="sa_key=${{ secrets.ACCESS_KEY_BACK }}" -auto-approve
+      run: terraform apply -var="principal_name=${{ secrets.PRINCIPAL_NAME }}" -var="sa_key=${{ secrets.ACCESS_KEY_BACK }}" -auto-approve ./GitHub-CI/
