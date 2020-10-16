@@ -31,11 +31,11 @@ jobs:
       run: terraform -v && az --version
 
     - name: Cloning the project
-      run: sudo mkdir pipe && sudo git clone https://github.com/bogdan-domanskiy/CI-Terraform-Pipeline.git ./pipe
+      run: pwd && sudo git clone https://github.com/bogdan-domanskiy/CI-Terraform-Pipeline.git ./
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
-      run: sudo cd ./pipe && sudo terraform init  -var="principal_name=${{ secrets.PRINCIPAL_NAME }}" -var="sa_key=${{ secrets.ACCESS_KEY_BACK }}"
+      run: sudo terraform init  -var="principal_name=${{ secrets.PRINCIPAL_NAME }}" -var="sa_key=${{ secrets.ACCESS_KEY_BACK }}"
 
 
     # Checks that all Terraform configuration files adhere to a canonical format
