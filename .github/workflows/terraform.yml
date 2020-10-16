@@ -38,9 +38,9 @@ jobs:
       run: ls -la && terraform init  -var="principal_name=${{ secrets.PRINCIPAL_NAME }}" -var="sa_key=${{ secrets.ACCESS_KEY_BACK }}" ./GitHub-CI/
 
 
-    # Checks that all Terraform configuration files adhere to a canonical format
-    - name: Terraform Format
-      run:  terraform fmt -check ./GitHub-CI/
+#     # Checks that all Terraform configuration files adhere to a canonical format
+#     - name: Terraform Format
+#       run:  terraform fmt -check ./GitHub-CI/
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan
