@@ -1,0 +1,74 @@
+# workflow:
+#   rules:
+#     - if: '$CI_PIPELINE_SOURCE =~ /^merge_*/ && $CI_COMMIT_BRANCH == "master"'
+
+
+image:
+  # name: registry.gitlab.com/gitlab-org/gitlab-build-images:terraform
+  name: bogdanskiy/az-and-terraform:v3
+  entrypoint:
+    - '/usr/bin/env'
+    - 'PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/opt/az/bin/:/opt/az/bin/az:/usr/bin/az'
+
+before_script:
+  - export ARM_CLIENT_ID=$ARM_CLIENT_ID
+  - export ARM_CLIENT_SECRET=$ARM_CLIENT_SECRET
+  - export ARM_SUBSCRIPTION_ID=$ARM_SUBSCRIPTION_ID
+  - export SUBSCRIPTION_ID=$ARM_SUBSCRIPTION_IDbranch
+  - export ARM_TENANT_ID=$ARM_TENANT_ID
+  - export ACCESS_KEY_BACK=$ACCESS_KEY_BACK
+  - export PRINCIPAL_NAME=$PRINCIPAL_NAME
+  - cat /etc/os-release
+  - az --version
+  - terraform -v
+  - terraform init -backend=true -backend-config="access_key=$ACCESS_KEY_BACK" -get=true -input=false
+
+
+# .only-default: &only-default
+#   rules:
+#     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_COMMIT_BRANCH == "master"'
+#        # '$CI_COMMIT_BRANCH == "master"'
+#        # when: merge_requests
+#       except:
+#         - pushes
+#         #- apply
+
+stages:
+ - validate
+ - plan
+ - apply
+
+
+validate:
+  stage: validate
+  # extends:
+  #   - .only-default
+  variables:
+    CI_DEBUG_TRACE: "true"
+  script:
+   - terraform fmt
+   - terraform validate
+  rules:
+    - if: $CI_PIPELINE_SOURCE  =~ /^merge_*/ || $CI_PIPELINE_SOURCE  == "push"
+
+plan:
+  stage: plan
+  # extends:
+  #   - .only-default
+  script:
+    - terraform plan -var="principal_name=$PRINCIPAL_NAME" -var="sa_key=$ACCESS_KEY_BACK"
+  rules:
+    - if: $CI_PIPELINE_SOURCE  =~ /^merge_*/ || $CI_PIPELINE_SOURCE  == "push"
+  #  - if: '$CI_PIPELINE_SOURCE != "merge_request"'
+  dependencies:
+    - validate
+
+
+apply:
+  stage: apply
+  # extends:
+  #   - .only-default
+  script:
+    - terraform apply -auto-approve -var="principal_name=$PRINCIPAL_NAME" -var="sa_key=$ACCESS_KEY_BACK"
+  dependencies:
+    - plan
