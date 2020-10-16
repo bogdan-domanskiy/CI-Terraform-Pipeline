@@ -23,17 +23,24 @@ jobs:
         shell: bash
 
     steps:
+    
+    - name: Update packeges
+      run: whoami && apt update
+      
     - name: Check the Terraform and AZ versions.
       run: terraform -v && az --version
 
+    - name: Cloning the project
+      run: mkdir pipe && git clone https://github.com/bogdan-domanskiy/CI-Terraform-Pipeline.git ./pipe
+
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
-      run: terraform init  -var="principal_name=${{ secrets.PRINCIPAL_NAME }}" -var="sa_key=${{ secrets.ACCESS_KEY_BACK }}"
+      run: cd ./pipe && terraform init  -var="principal_name=${{ secrets.PRINCIPAL_NAME }}" -var="sa_key=${{ secrets.ACCESS_KEY_BACK }}"
 
 
     # Checks that all Terraform configuration files adhere to a canonical format
     - name: Terraform Format
-      run: terraform fmt -check
+      run:  terraform fmt -check
 
     # Generates an execution plan for Terraform
     - name: Terraform Plan
